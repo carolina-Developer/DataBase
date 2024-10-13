@@ -64,6 +64,8 @@ dependencies {
     // Dependencias de Room con KSP
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.runtime.ktx)
     ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)

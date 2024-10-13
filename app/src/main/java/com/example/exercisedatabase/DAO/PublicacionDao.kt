@@ -1,5 +1,6 @@
 package com.example.exercisedatabase.DAO
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -7,7 +8,7 @@ import com.example.exercisedatabase.Model.Publicacion
 import com.example.exercisedatabase.Model.Usuario
 
 
-
+@Dao
 interface PublicacionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(publicacion: Publicacion)
