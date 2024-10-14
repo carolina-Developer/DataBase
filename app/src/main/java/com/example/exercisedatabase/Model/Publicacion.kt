@@ -6,9 +6,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "publicacion")
 data class Publicacion(
         @PrimaryKey(autoGenerate = true)
-        val id: Int = 0,
-        val titulo: String = "",
-        val cuerpo: String = "",
-        val usuarioId: Int = 0
+        val id_publicacion: Int = 0,
+        val subject: String = "",
+        val description: String = "",
+        val user_id: Int = 0
     )
 

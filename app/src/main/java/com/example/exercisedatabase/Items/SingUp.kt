@@ -87,7 +87,7 @@ fun SingUp(navController: NavController, usuarioRepositorio: UsuarioRepositorio)
                     }
                 }
                 Toast.makeText(context, "User registered", Toast.LENGTH_SHORT).show()
-                navController.navigate("publicationList")
+                navController.navigate("publicatins")
             },
             modifier = Modifier
                 .fillMaxWidth()

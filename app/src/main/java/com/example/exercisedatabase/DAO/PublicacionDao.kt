@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.exercisedatabase.Model.Publicacion
+import com.example.exercisedatabase.Model.PublicacionWithDetails
 import com.example.exercisedatabase.Model.Usuario
 
 
@@ -16,9 +17,18 @@ interface PublicacionDao {
     @Query("SELECT * FROM publicacion")
     suspend fun getAllPublicactions(): List<Publicacion>
 
-    @Query("DELETE FROM publicacion WHERE id = :publicacionId")
-    suspend fun deleteById(publicacionId: Int): Int
+    @Query("DELETE FROM publicacion WHERE id_publicacion = :id_publicacion")
+    suspend fun deleteById(id_publicacion: Int): Int
 
-    @Query("UPDATE publicacion SET titulo = :titulo, cuerpo = :cuerpo WHERE id = :publicacionId")
-    suspend fun updateById(publicacionId: Int, titulo: String, cuerpo: String): Int
+    @Query("UPDATE publicacion SET subject = :subject, description = :description WHERE id_publicacion = :id_publicacion")
+    suspend fun updateById(id_publicacion: Int, subject: String, description: String): Int
+
+    /*@Query(
+        """SELECT u.username, p.subject, p.description
+        FROM publicacion as p
+        INNER JOIN usuario as u
+        ON p.user_id = u.id"""
+    )
+    suspend fun getPublicacionByUsername(): List<PublicacionWithDetails>*/
+
 }

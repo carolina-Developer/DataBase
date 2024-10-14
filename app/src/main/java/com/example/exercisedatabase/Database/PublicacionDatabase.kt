@@ -9,8 +9,8 @@ import com.example.exercisedatabase.DAO.UsuarioDao
 import com.example.exercisedatabase.Model.Publicacion
 import com.example.exercisedatabase.Model.Usuario
 
-class PublicacionDatabase {
-    //Se esta haciendo la instancia de la clase "Usuario"
+
+//Se esta haciendo la instancia de la clase "Usuario"
     @Database(entities = [Publicacion::class], version = 1, exportSchema = false)
 
     //Asbtracto porque solo el Room hace la instancia
@@ -18,6 +18,7 @@ class PublicacionDatabase {
 
         //Esto es un objeto estático que se puede utilizar para obtener la instancia de la base de datos
         abstract fun publicacionDao(): PublicacionDao
+
 
         companion object {
             //Cualquier hilo(Proceso) pueda acceder a la variable mas actualizada
@@ -40,4 +41,3 @@ class PublicacionDatabase {
         }
 
     }
-}

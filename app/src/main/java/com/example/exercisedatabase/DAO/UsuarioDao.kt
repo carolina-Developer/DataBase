@@ -14,12 +14,13 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuario")
     suspend fun getAllUsers(): List<Usuario>
 
-    @Query("DELETE FROM usuario WHERE id = :userId")
-    suspend fun deleteById(userId: Int): Int
+    @Query("DELETE FROM usuario WHERE user_id = :user_id")
+    suspend fun deleteById(user_id: Int): Int
 
-    @Query("UPDATE usuario SET username = :username, password = :password WHERE id= :userId")
+    @Query("UPDATE usuario SET username = :username, password = :password WHERE user_id= :userId")
     suspend fun updateById(userId: Int, username: String, password: String): Int
 
-
+    @Query("SELECT * FROM usuario WHERE username = :username AND password = :password")
+    suspend fun login(username: String, password: String): Usuario
 
 }

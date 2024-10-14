@@ -2,6 +2,7 @@ package com.example.exercisedatabase.Repository
 
 import com.example.exercisedatabase.DAO.PublicacionDao
 import com.example.exercisedatabase.Model.Publicacion
+import com.example.exercisedatabase.Model.PublicacionWithDetails
 
 class PublicacionRepositorio(private val publicacionDao: PublicacionDao){
 
@@ -20,4 +21,9 @@ class PublicacionRepositorio(private val publicacionDao: PublicacionDao){
     suspend fun updateById(publicacionId: Int, titulo: String, cuerpo: String): Int{
         return publicacionDao.updateById(publicacionId, titulo, cuerpo)
     }
+
+    /*suspend fun getPublicacionByUsername(): List<PublicacionWithDetails>{
+        return publicacionDao.getPublicacionByUsername()
+    }*/
+
 }

@@ -15,9 +15,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -46,6 +50,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,16 +59,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.exercisedatabase.Model.Publicacion
+import com.example.exercisedatabase.Model.Usuario
 import com.example.exercisedatabase.R
+import com.example.exercisedatabase.Repository.PublicacionRepositorio
 import kotlinx.coroutines.launch
+import javax.security.auth.Subject
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun publicationList(
-username: String,
-description: String,
-navController: NavController
+fun publicationsNav(
+navController: NavController,
+publicacionRepositorio: PublicacionRepositorio,
 ) {
     val drawerState = rememberDrawerState(initialValue =DrawerValue.Closed) //Recuerda el valor del drwaer
     val scope = rememberCoroutineScope() //Recuerda cuando este abierto o cerrado
@@ -72,7 +80,7 @@ navController: NavController
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                DrawerContent()
+                DrawerContent(publicacionRepositorio)
             }
         },
         gesturesEnabled = true
@@ -80,38 +88,50 @@ navController: NavController
         Scaffold(
             topBar = {
                 topBar(
+                    navController = navController,
                     onOpenDrawer = {
                         scope.launch {
                             drawerState.apply {
                                 if(isClosed) open() else close()
                             }
                         }
-                    }
+                    },
+                    publicacionRepositorio
                 )
             }
         ) { padding ->
-            screenContent(modifier = Modifier.padding(padding))
+            screenContent(modifier = Modifier.padding(padding),publicacionRepositorio)
         }
     }
 }
+/******************** MENU ********************/
 @Composable
 fun DrawerContent(
-    modifier: Modifier = Modifier
+    publicacionRepositorio: PublicacionRepositorio
 ){
-    var showDialog by remember { mutableStateOf(false) }
-    
-    Image(
+    Row(){
+        Image(
         painter = painterResource(id = R.drawable.ic_launcher_background),
         contentDescription = "Logo",
+        modifier = Modifier
+            .fillMaxSize()
     )
-    
-    Text(
-        text = "Publications App",
-        fontSize = 24.sp,
-        modifier = Modifier.padding(16.dp)
-    )
+        Text(
+            text = "Configuration App",
+            fontSize = 24.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Add"
+            )
+
+    }
     HorizontalDivider()
+    var showDialogAdd by remember { mutableStateOf(false) }
     NavigationDrawerItem(
+
         icon = {
             Icon(
                 imageVector = Icons.Default.Add,
@@ -127,35 +147,54 @@ fun DrawerContent(
         },
         selected = false,
         onClick = {
-            showDialog = true
+            showDialogAdd = true
         }
     )
-    if (showDialog) {
+    if (showDialogAdd) {
         createPublication(
-            onDismiss = { showDialog = false },
-            onSend = { showDialog = false }
+            onDismiss = { showDialogAdd = false },
+            onSend = { showDialogAdd = false },
+            publicacionRepositorio
         )
     }
-}
 
+}
+/******************** CONTENT ********************/
 @Composable
 fun screenContent(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    publicacionRepositorio: PublicacionRepositorio,
 ){
+    val publications = remember { mutableStateOf(emptyList<Publicacion>()) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        scope.launch{
+            publications.value = publicacionRepositorio.getAllPublicactions()
+        }
+    }
+
     Box(
         modifier = modifier
-            .padding(30.dp)
+            .padding(15.dp)
             .fillMaxSize()
     ){
-        publications(username = "JuanPrieto", description = "Lorem ipsum dolor sit amet...")
+            publications(
+                username = "User",
+                subject = publications.value.firstOrNull()?.subject ?: "",
+                description = publications.value.firstOrNull()?.description ?: ""
+            )
     }
 }
-
+/******************** TOP BAR ********************/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun topBar(
-    onOpenDrawer: () -> Unit
+    navController: NavController,
+    onOpenDrawer: () -> Unit,
+    publicacionRepositorio: PublicacionRepositorio
 ){
+    var showDialogAdd by remember { mutableStateOf(false) }
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.6f)
@@ -179,87 +218,55 @@ fun topBar(
             )
         },
         actions = {
-            Icon(
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 16.dp)
-                    .size(30.dp),
-                imageVector = Icons.Default.AccountCircle ,
-                contentDescription = "Menu"
-            )
-            Icon(
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 16.dp)
-                    .size(30.dp),
-                imageVector = Icons.Default.Add ,
-                contentDescription = "Menu"
-            )
+            IconButton(
+                onClick = {
+                    navController.navigate("singIn")
+                }
+            ) {
+                Icon(
+                    modifier = Modifier
+                        //.padding(start = 8.dp, end = 16.dp)
+                        .size(30.dp),
+                    imageVector = Icons.Default.ExitToApp ,
+                    contentDescription = "Out"
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    showDialogAdd = true
+                }
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(30.dp),
+                    imageVector = Icons.Default.Add ,
+                    contentDescription = "Add publications",
+                    )
+            }
+            if (showDialogAdd) {
+                createPublication(
+                    onDismiss = { showDialogAdd = false },
+                    onSend = { showDialogAdd = false },
+                    publicacionRepositorio
+                )
+            }
         }
     )
 }
-@Composable
-fun addPublication(
-onDismiss: () -> Unit,
-onSend: () -> Unit
-) {
-    var subject by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            color = Color.White
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id
-                        = R.drawable.user),
-                        contentDescription = "User"
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextField(
-                        value = message,
-                        onValueChange = { message = it },
-                        label = { Text("Message") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Button(
-                        onClick = onDismiss
-                    ) {
-                        Text("Cancel")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = onSend
-                    ) {
-                        Text("Send")
-                    }
-                }
-            }
-        }
-    }
-}
-
+/******************** PUBLICATIONS ********************/
 @Composable
 fun publications(
     username: String,
+    subject: String,
     description: String
 ){
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp)
             .clip(RoundedCornerShape(19.dp)),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Box(
             modifier = Modifier
@@ -305,7 +312,42 @@ fun publications(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
+                        text = subject
+                    )
+                    Text(
                         text = description
+                    )
+
+                }
+
+            }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    modifier = Modifier.align(Alignment.Top),
+                    onClick = { /*TODO*/ })
+                {
+                    Icon(
+                        modifier = Modifier
+                            .size(22.dp),
+                        imageVector = Icons.Default.Edit ,
+                        contentDescription = "Edit publication"
+                    )
+                }
+
+                IconButton(
+                    modifier = Modifier.align(Alignment.Top),
+                    onClick = { /*TODO*/ })
+                {
+                    Icon(
+                        modifier = Modifier
+                            .size(22.dp),
+                        imageVector = Icons.Default.Delete ,
+                        contentDescription = "Edit publication"
                     )
                 }
             }

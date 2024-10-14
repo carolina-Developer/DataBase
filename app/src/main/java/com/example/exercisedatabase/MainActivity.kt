@@ -17,33 +17,50 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.exercisedatabase.DAO.PublicacionDao
+import com.example.exercisedatabase.DAO.PublicationWithDetailsDAO
 import com.example.exercisedatabase.DAO.UsuarioDao
 import com.example.exercisedatabase.Database.PublicacionDatabase
+import com.example.exercisedatabase.Database.PublicacionWithDetailsDatabase
 import com.example.exercisedatabase.Database.UsuarioDatabase
 import com.example.exercisedatabase.Items.SingUp
 import com.example.exercisedatabase.Items.createPublication
 import com.example.exercisedatabase.Items.navigation
-import com.example.exercisedatabase.Items.publicationList
+import com.example.exercisedatabase.Items.publicationsNav
 import com.example.exercisedatabase.Items.singIngScreen
+import com.example.exercisedatabase.Model.PublicacionWithDetails
+import com.example.exercisedatabase.Repository.PublicacionRepositorio
+import com.example.exercisedatabase.Repository.PublicationWithDetailsRepositorio
 import com.example.exercisedatabase.Repository.UsuarioRepositorio
 import com.example.exercisedatabase.ui.theme.ExerciseDataBaseTheme
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var usuarioDao: UsuarioDao
-    private lateinit var usuarioRepositorio: UsuarioRepositorio // Agregar UserRepository
+    private lateinit var publicacionDao: PublicacionDao
+    private lateinit var publicacionWithDetailsDao: PublicationWithDetailsDAO
+
+    private lateinit var usuarioRepositorio: UsuarioRepositorio
+    private lateinit var publicacinRepositorio: PublicacionRepositorio
+    private lateinit var publicationWithDetailsRepositorio: PublicationWithDetailsRepositorio
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val db = UsuarioDatabase.getDatabaseUsuario(applicationContext)
-        usuarioDao = db.userDao()
-        usuarioRepositorio = UsuarioRepositorio(usuarioDao) // Inicializa UserRepository
+        val dbUser = UsuarioDatabase.getDatabaseUsuario(applicationContext)
+        val dbPublication = PublicacionDatabase.getDatabasePublicaion(applicationContext)
+        val dbPublicationWithDetails = PublicacionWithDetailsDatabase.getDatabasePublicationWithDetails(applicationContext)
+
+        usuarioDao = dbUser.userDao()
+        publicacionDao = dbPublication.publicacionDao()
+        publicacionWithDetailsDao = dbPublicationWithDetails.publicacionWithDetailsDao()
+
+        publicacinRepositorio = PublicacionRepositorio(publicacionDao)
+        usuarioRepositorio = UsuarioRepositorio(usuarioDao)
 
         enableEdgeToEdge()
         setContent {
-
-            navigation(usuarioRepositorio)
+            navigation(usuarioRepositorio, publicacinRepositorio)
         }
     }
 }

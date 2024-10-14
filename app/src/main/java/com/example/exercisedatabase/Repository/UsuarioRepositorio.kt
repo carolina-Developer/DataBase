@@ -21,5 +21,10 @@ class UsuarioRepositorio(private val usuarioDao: UsuarioDao){
         return usuarioDao.updateById(userId, username, password)
     }
 
+    suspend fun login(username: String, password: String): Usuario{
+        return usuarioDao.login(username, password)
+    }
+
+
 }
 
